@@ -1,0 +1,13 @@
+name: CI for pull request
+
+on:
+  pull_request:
+
+jobs:
+  test-go:
+    strategy:
+      matrix:
+        version: [stable, oldstable]
+    uses: ./.github/workflows/wf-test-go.yml
+    with:
+      go-version: ${{ matrix.version }}
