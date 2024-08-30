@@ -1,3 +1,5 @@
+github.com/Arthur1/openfeature-provider-go-aws-appconfig v0.1.0 h1:31iLeZJ9GEunxn2tMPtlG+JwIDerPJWc9+7FRmMTrzs=
+github.com/Arthur1/openfeature-provider-go-aws-appconfig v0.1.0/go.mod h1:qI55OzbQTr4cq4s30ACTePfAbchORtlL0R5zeoXc0+8=
 github.com/aws/aws-lambda-go v1.47.0 h1:0H8s0vumYx/YKs4sE7YM0ktwL2eWse+kfopsRI1sXVI=
 github.com/aws/aws-lambda-go v1.47.0/go.mod h1:dpMpZgvWx5vuQJfBt0zqBha60q7Dd7RfgJv23DymV8A=
 github.com/caarlos0/env/v11 v11.2.2 h1:95fApNrUyueipoZN/EhA8mMxiNxrBwDa+oAZrMWl3Kg=
