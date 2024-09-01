@@ -7,6 +7,7 @@ This is a demo of openfeature-provider-go-aws-appconfig along with AWS AppConfig
 Resources such as AppConfig and a Lambda function containing the agent layer will be created.
 
 ```console
+$ make build
 $ cd ./terraform
 $ terraform init
 $ terraform apply
