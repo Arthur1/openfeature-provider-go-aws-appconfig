@@ -5,7 +5,7 @@ import (
 )
 
 type Client interface {
-	GetFlag(ctx context.Context, flagName string, evalCtx map[string]any) (*GetFlagResult, error)
+	GetFlag(ctx context.Context, application, environment, configuration, flagName string, evalCtx map[string]any) (*GetFlagResult, error)
 }
 
 type GetFlagResult struct {

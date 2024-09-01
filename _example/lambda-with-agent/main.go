@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 
-	"github.com/Arthur1/openfeature-provider-go-aws-appconfig/appconfig"
 	"github.com/Arthur1/openfeature-provider-go-aws-appconfig/appconfigprovider"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/caarlos0/env/v11"
@@ -26,11 +25,7 @@ func handler(ctx context.Context) {
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatalf("%+v\n", err)
 	}
-	openfeature.SetProvider(
-		appconfigprovider.NewProvider(
-			appconfig.NewAgentClient(cfg.AppConfigApp, cfg.AppConfigEnv, cfg.AppConfigCfg),
-		),
-	)
+	openfeature.SetProvider(appconfigprovider.New(cfg.AppConfigApp, cfg.AppConfigEnv, cfg.AppConfigCfg))
 	client := openfeature.NewClient("app")
 	evalCtxA := openfeature.NewTargetlessEvaluationContext(
 		map[string]any{"userId": "userA"},

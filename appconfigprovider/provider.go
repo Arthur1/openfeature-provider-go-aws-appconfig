@@ -8,14 +8,47 @@ import (
 )
 
 type Provider struct {
-	client appconfig.Client
+	client        appconfig.Client
+	application   string
+	environment   string
+	configuration string
 }
 
 var _ openfeature.FeatureProvider = (*Provider)(nil)
 
-func NewProvider(client appconfig.Client) *Provider {
+type options struct {
+	client appconfig.Client
+}
+
+type Option interface {
+	apply(opts *options)
+}
+
+type clientOption struct {
+	client appconfig.Client
+}
+
+func (o clientOption) apply(opts *options) {
+	opts.client = o.client
+}
+
+func WithClientOption(client appconfig.Client) clientOption {
+	return clientOption{client: client}
+}
+
+func New(application, environment, configuration string, opts ...Option) *Provider {
+	options := &options{
+		client: appconfig.NewAgentClient(),
+	}
+	for _, o := range opts {
+		o.apply(options)
+	}
+
 	return &Provider{
-		client: client,
+		client:        options.client,
+		application:   application,
+		environment:   environment,
+		configuration: configuration,
 	}
 }
 
@@ -26,7 +59,7 @@ func (p *Provider) Metadata() openfeature.Metadata {
 }
 
 func (p *Provider) BooleanEvaluation(ctx context.Context, flag string, defaultValue bool, evalCtx openfeature.FlattenedContext) openfeature.BoolResolutionDetail {
-	res, err := p.client.GetFlag(ctx, flag, evalCtx)
+	res, err := p.client.GetFlag(ctx, p.application, p.environment, p.configuration, flag, evalCtx)
 	if err != nil {
 		return openfeature.BoolResolutionDetail{
 			Value: defaultValue,

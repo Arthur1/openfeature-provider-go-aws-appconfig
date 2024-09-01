@@ -18,10 +18,7 @@ func TestNewAgentClient(t *testing.T) {
 	t.Parallel()
 	t.Run("default", func(t *testing.T) {
 		t.Parallel()
-		client := NewAgentClient("app", "env", "conf")
-		assert.Equal(t, "app", client.application)
-		assert.Equal(t, "env", client.environment)
-		assert.Equal(t, "conf", client.configuration)
+		client := NewAgentClient()
 		assert.Equal(t, http.DefaultClient, client.httpClient)
 		assert.Equal(t, "http://localhost:2772", client.baseURL)
 	})
@@ -29,13 +26,13 @@ func TestNewAgentClient(t *testing.T) {
 	t.Run("WithHTTPClientOption", func(t *testing.T) {
 		t.Parallel()
 		httpClient := new(http.Client)
-		client := NewAgentClient("app", "env", "conf", WithHTTPClientOption(httpClient))
+		client := NewAgentClient(WithHTTPClientOption(httpClient))
 		assert.Equal(t, httpClient, client.httpClient)
 	})
 
 	t.Run("WithBaseURLOption", func(t *testing.T) {
 		t.Parallel()
-		client := NewAgentClient("app", "env", "conf", WithBaseURLOption("http://localhost:8080"))
+		client := NewAgentClient(WithBaseURLOption("http://localhost:8080"))
 		assert.Equal(t, "http://localhost:8080", client.baseURL)
 	})
 }
@@ -54,8 +51,8 @@ func TestGetFlag(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		client := NewAgentClient("app", "env", "conf", WithBaseURLOption(ts.URL))
-		got, err := client.GetFlag(context.Background(), "myflag", nil)
+		client := NewAgentClient(WithBaseURLOption(ts.URL))
+		got, err := client.GetFlag(context.Background(), "app", "env", "conf", "myflag", nil)
 		assert.NoError(t, err)
 		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
 		assert.Equal(t, int64(1), cnt)
@@ -73,8 +70,8 @@ func TestGetFlag(t *testing.T) {
 		}))
 		defer ts.Close()
 
-		client := NewAgentClient("app", "env", "conf", WithBaseURLOption(ts.URL))
-		got, err := client.GetFlag(context.Background(), "myflag", map[string]any{"attr1": 1, "attr2": "hoge", "attr3": true})
+		client := NewAgentClient(WithBaseURLOption(ts.URL))
+		got, err := client.GetFlag(context.Background(), "app", "env", "conf", "myflag", map[string]any{"attr1": 1, "attr2": "hoge", "attr3": true})
 		assert.NoError(t, err)
 		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
 		assert.Equal(t, int64(1), cnt)
