@@ -36,8 +36,9 @@ The correspondence between data of AppConfig Feature Flags and boolean value det
 |:--|:--|
 |feature flag key|flag key|
 |enabled value|value (boolean)|
-|variant (in multi variant flag)|variant|
 |attributes|flag metadata|
+|variant (in multi variant flag)|variant|
+|caller context|evaluation context|
 
 ## License
 
