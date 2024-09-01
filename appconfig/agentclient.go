@@ -12,11 +12,8 @@ import (
 )
 
 type AgentClient struct {
-	application   string
-	environment   string
-	configuration string
-	httpClient    *http.Client
-	baseURL       string
+	httpClient *http.Client
+	baseURL    string
 }
 
 var _ Client = (*AgentClient)(nil)
@@ -52,7 +49,7 @@ func WithBaseURLOption(baseURL string) baseURLOption {
 	return baseURLOption(baseURL)
 }
 
-func NewAgentClient(application string, environment string, configuration string, opts ...AgentClientOption) *AgentClient {
+func NewAgentClient(opts ...AgentClientOption) *AgentClient {
 	options := &agentClientOptions{
 		httpClient: http.DefaultClient,
 		baseURL:    "http://localhost:2772",
@@ -62,20 +59,17 @@ func NewAgentClient(application string, environment string, configuration string
 	}
 
 	return &AgentClient{
-		application:   application,
-		environment:   environment,
-		configuration: configuration,
-		httpClient:    options.httpClient,
-		baseURL:       options.baseURL,
+		httpClient: options.httpClient,
+		baseURL:    options.baseURL,
 	}
 }
 
-func (c *AgentClient) GetFlag(_ context.Context, flagName string, evalCtx map[string]any) (*GetFlagResult, error) {
+func (c *AgentClient) GetFlag(_ context.Context, application, environment, configuration, flagName string, evalCtx map[string]any) (*GetFlagResult, error) {
 	endpointURL, err := url.Parse(c.baseURL)
 	if err != nil {
 		return nil, err
 	}
-	endpointURL = endpointURL.JoinPath("applications", c.application, "environments", c.environment, "configurations", c.configuration)
+	endpointURL = endpointURL.JoinPath("applications", application, "environments", environment, "configurations", configuration)
 	query := endpointURL.Query()
 	query.Set("flag", flagName)
 	endpointURL.RawQuery = query.Encode()
