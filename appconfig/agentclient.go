@@ -69,7 +69,7 @@ func (c *AgentClient) GetFlag(_ context.Context, application, environment, confi
 	if err != nil {
 		return nil, err
 	}
-	endpointURL = endpointURL.JoinPath("applications", application, "environments", environment, "configurations", configuration)
+	endpointURL = endpointURL.JoinPath("applications", url.PathEscape(application), "environments", url.PathEscape(environment), "configurations", url.PathEscape(configuration))
 	query := endpointURL.Query()
 	query.Set("flag", flagName)
 	endpointURL.RawQuery = query.Encode()
