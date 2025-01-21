@@ -8,5 +8,6 @@ import (
 )
 
 func NoDiff(t *testing.T, want, got any, opts []cmp.Option, msgAndArgs ...any) {
+	t.Helper()
 	assert.Empty(t, cmp.Diff(got, want, opts...), msgAndArgs...)
 }
