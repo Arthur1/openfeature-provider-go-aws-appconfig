@@ -90,6 +90,8 @@ func (c *AgentClient) GetFlag(_ context.Context, application, environment, confi
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
+
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("server has returned invalid status code: %d", res.StatusCode)
 	}
