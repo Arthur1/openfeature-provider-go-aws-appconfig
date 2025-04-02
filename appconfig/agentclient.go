@@ -64,7 +64,7 @@ func NewAgentClient(opts ...AgentClientOption) *AgentClient {
 	}
 }
 
-func (c *AgentClient) GetFlag(_ context.Context, application, environment, configuration, flagName string, evalCtx map[string]any) (*GetFlagResult, error) {
+func (c *AgentClient) GetFlag(ctx context.Context, application, environment, configuration, flagName string, evalCtx map[string]any) (*GetFlagResult, error) {
 	endpointURL, err := url.Parse(c.baseURL)
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (c *AgentClient) GetFlag(_ context.Context, application, environment, confi
 	query.Set("flag", flagName)
 	endpointURL.RawQuery = query.Encode()
 
-	req, err := http.NewRequest(http.MethodGet, endpointURL.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpointURL.String(), nil)
 	if err != nil {
 		return nil, err
 	}
