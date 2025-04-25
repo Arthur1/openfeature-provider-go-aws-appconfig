@@ -1,0 +1,17 @@
+{
+  "feature_false": {
+    "enabled": false
+  },
+  "feature_true": {
+    "enabled": true
+  },
+  "feature_attributes": {
+    "enabled": true,
+    "max_items": 200,
+    "campaign": "birthday"
+  },
+  "feature_variant": {
+    "_variant": "default",
+    "enabled": false
+  }
+}
