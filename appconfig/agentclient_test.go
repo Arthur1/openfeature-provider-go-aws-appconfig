@@ -1,6 +1,7 @@
 package appconfig
 
 import (
+	"cmp"
 	"context"
 	"fmt"
 	"net/http"
@@ -9,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/Arthur1/openfeature-provider-go-aws-appconfig/internal/testutil"
-	"github.com/google/go-cmp/cmp"
-	"github.com/google/go-cmp/cmp/cmpopts"
+	gocmp "github.com/google/go-cmp/cmp"
+	gocmpopts "github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -72,7 +73,7 @@ func TestGetFlag(t *testing.T) {
 			fmt.Fprintln(w, `{"enabled": true}`)
 			assert.Equal(t, "/applications/app/environments/env/configurations/conf", r.URL.Path)
 			assert.Equal(t, "myflag", r.URL.Query().Get("flag"))
-			testutil.NoDiff(t, []string{"attr1=1", "attr2=hoge", "attr3=true"}, r.Header.Values("Context"), []cmp.Option{cmpopts.SortSlices(func(i, j string) bool { return i < j })})
+			testutil.NoDiff(t, []string{"attr1=1", "attr2=hoge", "attr3=true"}, r.Header.Values("Context"), []gocmp.Option{gocmpopts.SortSlices(cmp.Compare[string])})
 		}))
 		defer ts.Close()
 
