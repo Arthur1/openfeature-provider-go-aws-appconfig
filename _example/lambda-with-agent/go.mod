@@ -2,8 +2,6 @@ module github.com/Arthur1/openfeature-provider-go-aws-appconfig/_example/lambda-
 
 go 1.23.0
 
-toolchain go1.24.2
-
 require (
 	github.com/Arthur1/openfeature-provider-go-aws-appconfig v0.0.0
 	github.com/aws/aws-lambda-go v1.47.0
