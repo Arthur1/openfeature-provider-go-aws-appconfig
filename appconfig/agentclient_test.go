@@ -37,6 +37,12 @@ func TestNewAgentClient(t *testing.T) {
 	})
 }
 
+type roundTripperFunc func(r *http.Request) (*http.Response, error)
+
+func (f roundTripperFunc) RoundTrip(r *http.Request) (*http.Response, error) {
+	return f(r)
+}
+
 func TestGetFlag(t *testing.T) {
 	t.Parallel()
 	t.Run("default", func(t *testing.T) {
@@ -72,6 +78,37 @@ func TestGetFlag(t *testing.T) {
 
 		client := NewAgentClient(WithBaseURLOption(ts.URL))
 		got, err := client.GetFlag(context.Background(), "app", "env", "conf", "myflag", map[string]any{"attr1": 1, "attr2": "hoge", "attr3": true})
+		assert.NoError(t, err)
+		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
+		assert.Equal(t, int64(1), cnt)
+	})
+
+	t.Run("with go context", func(t *testing.T) {
+		t.Parallel()
+		ctx := context.Background()
+		ctx = context.WithValue(ctx, "key", "value")
+		var cnt int64
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			atomic.AddInt64(&cnt, 1)
+			fmt.Fprintln(w, `{"enabled": true}`)
+			assert.Equal(t, "/applications/app/environments/env/configurations/conf", r.URL.Path)
+			assert.Equal(t, "myflag", r.URL.Query().Get("flag"))
+			assert.Equal(t, []string(nil), r.Header.Values("Context"))
+		}))
+		defer ts.Close()
+
+		fn := func(roundTripper http.RoundTripper) roundTripperFunc {
+			return func(r *http.Request) (*http.Response, error) {
+				assert.Equal(t, "value", r.Context().Value("key"))
+				return roundTripper.RoundTrip(r)
+			}
+		}
+
+		httpClient := &http.Client{
+			Transport: fn(http.DefaultTransport),
+		}
+		client := NewAgentClient(WithBaseURLOption(ts.URL), WithHTTPClientOption(httpClient))
+		got, err := client.GetFlag(ctx, "app", "env", "conf", "myflag", nil)
 		assert.NoError(t, err)
 		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
 		assert.Equal(t, int64(1), cnt)
