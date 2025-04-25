@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"path/filepath"
 	"sync/atomic"
 	"testing"
 
@@ -13,6 +14,9 @@ import (
 	gocmp "github.com/google/go-cmp/cmp"
 	gocmpopts "github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/testcontainers/testcontainers-go"
+	"github.com/testcontainers/testcontainers-go/wait"
 )
 
 func TestNewAgentClient(t *testing.T) {
@@ -115,6 +119,120 @@ func TestGetFlag(t *testing.T) {
 		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
 		assert.Equal(t, int64(1), cnt)
 	})
+}
+
+const appConfigAgentImage = "public.ecr.aws/aws-appconfig/aws-appconfig-agent:2.x"
+
+func setupAppConfigAgentTestcontainers(t *testing.T) (url string) {
+	t.Helper()
+	// If Go 1.24 or higher, you can use t.Context() instead of ctx argument
+	ctx := context.Background()
+	dataDir, err := filepath.Abs(filepath.Join(".", "testdata"))
+	require.NoError(t, err)
+
+	req := testcontainers.ContainerRequest{
+		Image: appConfigAgentImage,
+		Files: []testcontainers.ContainerFile{{
+			HostFilePath:      dataDir,
+			ContainerFilePath: "/",
+			FileMode:          0o700,
+		}},
+		Env: map[string]string{
+			"LOCAL_DEVELOPMENT_DIRECTORY": "/testdata/",
+		},
+		ExposedPorts: []string{"2772/tcp"},
+		WaitingFor: wait.ForAll(
+			wait.ForListeningPort("2772/tcp"),
+			wait.ForLog("serving on localhost:2772"),
+		),
+	}
+	ctr, err := testcontainers.GenericContainer(ctx,
+		testcontainers.GenericContainerRequest{
+			ContainerRequest: req,
+			Started:          true,
+		},
+	)
+	require.NoError(t, err)
+
+	t.Cleanup(func() {
+		if err := ctr.Terminate(ctx); err != nil {
+			t.Log(err.Error())
+		}
+	})
+
+	url, err = ctr.PortEndpoint(ctx, "2772/tcp", "http")
+	require.NoError(t, err)
+	return
+}
+
+func TestGetFlagWithTestcontainers(t *testing.T) {
+	t.Parallel()
+	baseURL := setupAppConfigAgentTestcontainers(t)
+	client := NewAgentClient(WithBaseURLOption(baseURL))
+
+	cases := []struct {
+		application   string
+		environment   string
+		configulation string
+		flagName      string
+		evalCtx       map[string]any
+		want          *GetFlagResult
+		wantErr       bool
+	}{
+		{
+			application:   "app1",
+			environment:   "env1",
+			configulation: "cfg1",
+			flagName:      "feature_false",
+			want:          &GetFlagResult{Enabled: false},
+		},
+		{
+			application:   "app1",
+			environment:   "env1",
+			configulation: "cfg1",
+			flagName:      "feature_true",
+			want:          &GetFlagResult{Enabled: true},
+		},
+		{
+			application:   "app1",
+			environment:   "env1",
+			configulation: "cfg1",
+			flagName:      "feature_attributes",
+			want: &GetFlagResult{
+				Enabled: true,
+				Attributes: map[string]any{
+					"campaign":  "birthday",
+					"max_items": float64(200),
+				},
+			},
+		},
+		{
+			application:   "app1",
+			environment:   "env1",
+			configulation: "cfg1",
+			flagName:      "feature_variant",
+			want:          &GetFlagResult{Enabled: false, Variant: "default"},
+		},
+		{
+			application:   "appNotFound",
+			environment:   "env1",
+			configulation: "cfg1",
+			flagName:      "feature_false",
+			wantErr:       true,
+		},
+	}
+
+	for _, tt := range cases {
+		t.Run(fmt.Sprintf("%s:%s:%s %s", tt.application, tt.environment, tt.configulation, tt.flagName), func(t *testing.T) {
+			got, err := client.GetFlag(context.Background(), tt.application, tt.environment, tt.configulation, tt.flagName, tt.evalCtx)
+			if tt.wantErr {
+				assert.Error(t, err)
+			} else {
+				assert.NoError(t, err)
+				testutil.NoDiff(t, tt.want, got, nil)
+			}
+		})
+	}
 }
 
 func TestJsonToResult(t *testing.T) {
