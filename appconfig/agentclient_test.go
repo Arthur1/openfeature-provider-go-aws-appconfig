@@ -84,9 +84,10 @@ func TestGetFlag(t *testing.T) {
 	})
 
 	t.Run("with go context", func(t *testing.T) {
+		type ctxKey struct{}
 		t.Parallel()
 		ctx := context.Background()
-		ctx = context.WithValue(ctx, "key", "value")
+		ctx = context.WithValue(ctx, ctxKey{}, "value")
 		var cnt int64
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			atomic.AddInt64(&cnt, 1)
@@ -99,7 +100,7 @@ func TestGetFlag(t *testing.T) {
 
 		fn := func(roundTripper http.RoundTripper) roundTripperFunc {
 			return func(r *http.Request) (*http.Response, error) {
-				assert.Equal(t, "value", r.Context().Value("key"))
+				assert.Equal(t, "value", r.Context().Value(ctxKey{}))
 				return roundTripper.RoundTrip(r)
 			}
 		}
