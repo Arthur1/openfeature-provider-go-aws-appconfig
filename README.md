@@ -4,7 +4,7 @@ Go implementation of OpenFeature Provider for AWS AppConfig (Feature Flags).
 
 ## Requirements
 
-Go 1.22 or higher is required.
+Go 1.23 or higher is required.
 
 We supports latest two major releases of Go.
 

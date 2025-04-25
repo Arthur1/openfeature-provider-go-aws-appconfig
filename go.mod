@@ -1,6 +1,6 @@
 module github.com/Arthur1/openfeature-provider-go-aws-appconfig
 
-go 1.22.0
+go 1.23.0
 
 require (
 	github.com/google/go-cmp v0.7.0

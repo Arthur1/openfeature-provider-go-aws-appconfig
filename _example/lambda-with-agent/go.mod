@@ -1,6 +1,6 @@
 module github.com/Arthur1/openfeature-provider-go-aws-appconfig/_example/lambda-with-agent
 
-go 1.22.0
+go 1.23.0
 
 require (
 	github.com/Arthur1/openfeature-provider-go-aws-appconfig v0.0.0
