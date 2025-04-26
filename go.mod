@@ -7,6 +7,7 @@ require (
 	github.com/open-feature/go-sdk v1.14.1
 	github.com/stretchr/testify v1.10.0
 	github.com/testcontainers/testcontainers-go v0.37.0
+	go.uber.org/goleak v1.3.0
 )
 
 require (
