@@ -1,7 +1,7 @@
 resource "aws_lambda_function" "this" {
   function_name    = "openfeature-appconfig-demo"
   package_type     = "Zip"
-  role             = aws_iam_role.server.arn
+  role             = aws_iam_role.lambda.arn
   architectures    = ["arm64"]
   filename         = "${path.module}/../archive.zip"
   source_code_hash = filebase64sha256("${path.module}/../archive.zip")
@@ -10,7 +10,7 @@ resource "aws_lambda_function" "this" {
   timeout          = 7
   runtime          = "provided.al2023"
   // https://docs.aws.amazon.com/en_us/appconfig/latest/userguide/appconfig-integration-lambda-extensions-versions.html#appconfig-integration-lambda-extensions-enabling-ARM64
-  layers = ["arn:aws:lambda:ap-northeast-1:980059726660:layer:AWS-AppConfig-Extension-Arm64:78"]
+  layers = ["arn:aws:lambda:ap-northeast-1:980059726660:layer:AWS-AppConfig-Extension-Arm64:79"]
 
   environment {
     variables = {
@@ -21,13 +21,9 @@ resource "aws_lambda_function" "this" {
   }
 }
 
-resource "aws_iam_role" "server" {
+resource "aws_iam_role" "lambda" {
   name               = "openfeature-appconfig-demo-lambda"
   assume_role_policy = data.aws_iam_policy_document.assume_role_lambda.json
-  inline_policy {
-    name   = "appconfig"
-    policy = data.aws_iam_policy_document.appconfig.json
-  }
 }
 
 data "aws_iam_policy_document" "assume_role_lambda" {
@@ -39,6 +35,12 @@ data "aws_iam_policy_document" "assume_role_lambda" {
     }
     actions = ["sts:AssumeRole"]
   }
+}
+
+resource "aws_iam_role_policy" "lambda" {
+  role   = aws_iam_role.lambda.id
+  name   = "appconfig"
+  policy = data.aws_iam_policy_document.appconfig.json
 }
 
 data "aws_iam_policy_document" "appconfig" {
@@ -56,7 +58,7 @@ data "aws_iam_policy_document" "appconfig" {
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_basic" {
-  role       = aws_iam_role.server.name
+  role       = aws_iam_role.lambda.id
   policy_arn = data.aws_iam_policy.lambda_basic_execution.arn
 }
 

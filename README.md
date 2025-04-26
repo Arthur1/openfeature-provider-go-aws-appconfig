@@ -14,7 +14,7 @@ We supports latest two major releases of Go.
 appName := "app" // Application name of AppConfig
 envName := "env" // Environment name of AppConfig
 cfgName := "cfg" // Configuration profile name of AppConfig
-openfeature.SetProvider(appconfigprovider.New(appName, envName, cfgName))
+openfeature.SetProviderAndWait(appconfigprovider.New(appName, envName, cfgName))
 client := openfeature.NewClient("app")
 evalCtx := openfeature.NewTargetlessEvaluationContext(
 	map[string]any{"userId": "userA"},

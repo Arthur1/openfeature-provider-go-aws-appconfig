@@ -25,7 +25,7 @@ func handler(ctx context.Context) {
 	if err := env.Parse(&cfg); err != nil {
 		log.Fatalf("%+v\n", err)
 	}
-	openfeature.SetProvider(appconfigprovider.New(cfg.AppConfigApp, cfg.AppConfigEnv, cfg.AppConfigCfg))
+	openfeature.SetProviderAndWait(appconfigprovider.New(cfg.AppConfigApp, cfg.AppConfigEnv, cfg.AppConfigCfg))
 	client := openfeature.NewClient("app")
 	evalCtxA := openfeature.NewTargetlessEvaluationContext(
 		map[string]any{"userId": "userA"},
