@@ -33,3 +33,4 @@ jobs:
       - if: always()
         run: |
           tparse -file ./go-test.out -format markdown >> "$GITHUB_STEP_SUMMARY"
+          go clean -testcache
