@@ -123,7 +123,7 @@ func TestGetFlag(t *testing.T) {
 
 const appConfigAgentImage = "public.ecr.aws/aws-appconfig/aws-appconfig-agent:2.x"
 
-func setupAppConfigAgentTestcontainers(t *testing.T) (url string) {
+func setupAppConfigAgentTestcontainers(t testing.TB) (url string) {
 	t.Helper()
 	// If Go 1.24 or higher, you can use t.Context() instead of ctx argument
 	ctx := context.Background()
@@ -143,7 +143,6 @@ func setupAppConfigAgentTestcontainers(t *testing.T) (url string) {
 		ExposedPorts: []string{"2772/tcp"},
 		WaitingFor: wait.ForAll(
 			wait.ForListeningPort("2772/tcp"),
-			wait.ForLog("serving on localhost:2772"),
 		),
 	}
 	ctr, err := testcontainers.GenericContainer(ctx,
