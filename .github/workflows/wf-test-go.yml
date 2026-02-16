@@ -25,12 +25,12 @@ jobs:
       - uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
         with:
           go-version: ${{ inputs.go-version }}
-      - run: |
-          go install github.com/mfridman/tparse@latest
-      - run: |
-          set -o pipefail
-          go test ./... -cover -json | tee ./go-test.out | tparse -all
-      - if: always()
+      - name: Run Go tests
         run: |
-          tparse -file ./go-test.out -format markdown >> "$GITHUB_STEP_SUMMARY"
+          go test ./... -cover -json > ./go-test.out
+      - name: Format test result
+        if: always()
+        run: |
+          go tool tparse -all -file ./go-test.out
+          go tool tparse -all -file ./go-test.out -format markdown >> "$GITHUB_STEP_SUMMARY"
           go clean -testcache
