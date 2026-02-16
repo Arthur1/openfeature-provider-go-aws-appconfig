@@ -63,7 +63,7 @@ func TestGetFlag(t *testing.T) {
 		defer ts.Close()
 
 		client := NewAgentClient(WithBaseURLOption(ts.URL))
-		got, err := client.GetFlag(context.Background(), "app", "env", "conf", "myflag", nil)
+		got, err := client.GetFlag(t.Context(), "app", "env", "conf", "myflag", nil)
 		assert.NoError(t, err)
 		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
 		assert.Equal(t, int64(1), cnt)
@@ -82,7 +82,7 @@ func TestGetFlag(t *testing.T) {
 		defer ts.Close()
 
 		client := NewAgentClient(WithBaseURLOption(ts.URL))
-		got, err := client.GetFlag(context.Background(), "app", "env", "conf", "myflag", map[string]any{"attr1": 1, "attr2": "hoge", "attr3": true})
+		got, err := client.GetFlag(t.Context(), "app", "env", "conf", "myflag", map[string]any{"attr1": 1, "attr2": "hoge", "attr3": true})
 		assert.NoError(t, err)
 		testutil.NoDiff(t, &GetFlagResult{Enabled: true}, got, nil)
 		assert.Equal(t, int64(1), cnt)
@@ -91,7 +91,7 @@ func TestGetFlag(t *testing.T) {
 	t.Run("with go context", func(t *testing.T) {
 		type ctxKey struct{}
 		t.Parallel()
-		ctx := context.Background()
+		ctx := t.Context()
 		ctx = context.WithValue(ctx, ctxKey{}, "value")
 		var cnt int64
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -125,8 +125,6 @@ const appConfigAgentImage = "public.ecr.aws/aws-appconfig/aws-appconfig-agent:2.
 
 func setupAppConfigAgentTestcontainers(t testing.TB) (url string) {
 	t.Helper()
-	// If Go 1.24 or higher, you can use t.Context() instead of ctx argument
-	ctx := context.Background()
 	dataDir, err := filepath.Abs(filepath.Join(".", "testdata"))
 	require.NoError(t, err)
 
@@ -145,7 +143,7 @@ func setupAppConfigAgentTestcontainers(t testing.TB) (url string) {
 			wait.ForListeningPort("2772/tcp"),
 		),
 	}
-	ctr, err := testcontainers.GenericContainer(ctx,
+	ctr, err := testcontainers.GenericContainer(t.Context(),
 		testcontainers.GenericContainerRequest{
 			ContainerRequest: req,
 			Started:          true,
@@ -154,12 +152,12 @@ func setupAppConfigAgentTestcontainers(t testing.TB) (url string) {
 	require.NoError(t, err)
 
 	t.Cleanup(func() {
-		if err := ctr.Terminate(ctx); err != nil {
+		if err := ctr.Terminate(context.Background()); err != nil {
 			t.Log(err.Error())
 		}
 	})
 
-	url, err = ctr.PortEndpoint(ctx, "2772/tcp", "http")
+	url, err = ctr.PortEndpoint(t.Context(), "2772/tcp", "http")
 	require.NoError(t, err)
 	return
 }
@@ -223,7 +221,7 @@ func TestGetFlagWithTestcontainers(t *testing.T) {
 
 	for _, tt := range cases {
 		t.Run(fmt.Sprintf("%s:%s:%s %s", tt.application, tt.environment, tt.configulation, tt.flagName), func(t *testing.T) {
-			got, err := client.GetFlag(context.Background(), tt.application, tt.environment, tt.configulation, tt.flagName, tt.evalCtx)
+			got, err := client.GetFlag(t.Context(), tt.application, tt.environment, tt.configulation, tt.flagName, tt.evalCtx)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
