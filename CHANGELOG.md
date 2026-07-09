@@ -1,5 +1,15 @@
 # Changelog
 
+## [v0.4.1](https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/compare/v0.4.0...v0.4.1) - 2026-07-09
+
+- chore(deps): update actions/checkout action to v7 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/65
+- chore(deps): update golangci/golangci-lint-action action to v9.3.0 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/63
+- chore(deps): update actions/create-github-app-token action to v3 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/61
+- chore(deps): update actions/setup-go action to v6.5.0 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/58
+- fix(deps): update module github.com/open-feature/go-sdk to v1.17.2 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/62
+- fix(deps): update module github.com/testcontainers/testcontainers-go to v0.43.0 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/59
+- chore(deps): update songmu/tagpr action to v1.20.0 by @renovate[bot] in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/57
+
 ## [v0.4.0](https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/compare/v0.3.0...v0.4.0) - 2026-02-16
 - chore: bump minimum supported Go version to 1.23 by @Arthur1 in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/32
 - test: add test with running AppConfig Agent container by @Arthur1 in https://github.com/Arthur1/openfeature-provider-go-aws-appconfig/pull/31
